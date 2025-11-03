@@ -6,6 +6,7 @@ import { MapPin, Phone, User, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import heroImage from "@/assets/hero-bike-ambulance.png";
 
 const Home = () => {
   const [name, setName] = useState("");
@@ -101,10 +102,21 @@ const Home = () => {
   };
 
   if (isSubmitted) {
-    return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-background to-secondary">
-        <Navigation />
-        <main className="flex-grow flex items-center justify-center p-4 mt-20">
+  return (
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background to-secondary">
+      <Navigation />
+      
+      {/* Hero Section */}
+      <section className="relative h-[60vh] min-h-[500px] w-full overflow-hidden mt-16">
+        <img 
+          src={heroImage} 
+          alt="Bike Ambulance - Frontline Care, Reimagined" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-background" />
+      </section>
+
+      <main className="flex-grow flex items-center justify-center p-4 -mt-32 relative z-10">
           <div className="bg-card shadow-2xl rounded-3xl p-8 w-full max-w-md text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="mb-6 flex justify-center">
               <div className="bg-success/10 rounded-full p-4">
@@ -148,7 +160,18 @@ const Home = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background to-secondary">
       <Navigation />
-      <main className="flex-grow flex items-center justify-center p-4 mt-20">
+      
+      {/* Hero Section */}
+      <section className="relative h-[60vh] min-h-[500px] w-full overflow-hidden mt-16">
+        <img 
+          src={heroImage} 
+          alt="Bike Ambulance - Frontline Care, Reimagined" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-background" />
+      </section>
+
+      <main className="flex-grow flex items-center justify-center p-4 -mt-32 relative z-10">
         <div className="bg-card shadow-2xl rounded-3xl p-8 w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="text-center mb-6">
             <h1 className="text-3xl font-bold text-primary mb-2">
