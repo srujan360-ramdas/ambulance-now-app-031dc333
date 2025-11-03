@@ -10,16 +10,76 @@ import Footer from "@/components/Footer";
 const Home = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [location, setLocation] = useState("Fetching your location...");
+  const [location, setLocation] = useState("Detecting your location...");
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [locationError, setLocationError] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Simulate location detection
-    setTimeout(() => {
-      setLocation("123 Main Street, Bangalore, India");
-    }, 1500);
-  }, []);
+    // Get user's real-time location
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          setCoordinates({ lat: latitude, lng: longitude });
+          
+          // Reverse geocoding using OpenStreetMap's Nominatim API
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+            );
+            const data = await response.json();
+            
+            if (data.display_name) {
+              setLocation(data.display_name);
+            } else {
+              setLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+            }
+          } catch (error) {
+            console.error("Geocoding error:", error);
+            setLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+          }
+        },
+        (error) => {
+          console.error("Location error:", error);
+          setLocationError(true);
+          
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              setLocation("Location access denied. Please enable location services.");
+              toast({
+                title: "Location Permission Required",
+                description: "Please allow location access to use this service",
+                variant: "destructive",
+              });
+              break;
+            case error.POSITION_UNAVAILABLE:
+              setLocation("Location unavailable. Please enter manually.");
+              break;
+            case error.TIMEOUT:
+              setLocation("Location request timeout. Please try again.");
+              break;
+            default:
+              setLocation("Unable to detect location. Please enter manually.");
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+    } else {
+      setLocation("Geolocation not supported by your browser");
+      setLocationError(true);
+      toast({
+        title: "Location Not Supported",
+        description: "Your browser doesn't support location services",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,9 +201,16 @@ const Home = () => {
                 id="location"
                 type="text"
                 value={location}
-                readOnly
-                className="bg-secondary text-foreground"
+                onChange={(e) => locationError && setLocation(e.target.value)}
+                readOnly={!locationError}
+                className={locationError ? "bg-background" : "bg-secondary text-foreground"}
+                placeholder={locationError ? "Enter your location manually" : "Detecting location..."}
               />
+              {coordinates && (
+                <p className="text-xs text-muted-foreground">
+                  Coordinates: {coordinates.lat.toFixed(6)}, {coordinates.lng.toFixed(6)}
+                </p>
+              )}
             </div>
 
             <Button
